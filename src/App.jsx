@@ -1,50 +1,51 @@
 import { useEffect, useState } from "react";
 import { Header } from "./components/Header";
 import { Tasks } from "./components/Tasks";
+import { notification } from "antd";
+import { BASE_URL } from "./constants";
 import axios from "axios";
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTasks] = useState([]);
 
   function loadSavedTasks() {
     axios
-      .get(`http://localhost:4000/tasks`)
+      .get(BASE_URL)
       .then((res) => {
         setTasks(res.data);
         console.log(tasks);
       })
       .catch((err) => {
-        console.log(err);
+        notification.error({ message: "Something went wrong" });
       });
   }
 
   useEffect(() => {
     loadSavedTasks();
-  }, [newTask]);
+  }, []);
 
   function addTask(taskTitle) {
     let task = {
       title: taskTitle,
     };
     axios
-      .post(`http://localhost:4000/tasks`, task)
+      .post(BASE_URL, task)
       .then((res) => {
-        setNewTasks(res.data);
+        loadSavedTasks();
       })
       .catch((err) => {
-        console.log(err);
+        notification.error({ message: "something went wrong" });
       });
   }
 
   function deleteTaskById(taskId) {
     axios
-      .delete(`http://localhost:4000/tasks/${taskId}`)
+      .delete(`${BASE_URL}/${taskId}`)
       .then((res) => {
-        setNewTasks(res.data);
+        loadSavedTasks();
       })
       .catch((err) => {
-        console.log(err);
+        notification.error({ message: err });
       });
   }
 
@@ -54,13 +55,12 @@ function App() {
       completed: taskId?.completed === false ? true : false,
     };
     axios
-      .put(`http://localhost:4000/tasks/${taskId?.id}`, task)
+      .put(`${BASE_URL}/${taskId?.id}`, task)
       .then((res) => {
-        console.log(res);
-        setNewTasks(res.data);
+        loadSavedTasks();
       })
       .catch((err) => {
-        console.log(err);
+        notification.error({ message: err });
       });
   }
 
